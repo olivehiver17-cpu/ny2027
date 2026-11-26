@@ -269,6 +269,9 @@ tr.cur td{background:var(--panel)}
 .help h3{font-size:19px}.help ol,.help ul{margin:8px 0 0;padding-left:1.25em}.help li{margin:4px 0}
 .vis{background:var(--panel);border-radius:var(--r2);padding:16px 18px;margin-bottom:22px}
 .vis .seg{margin-top:10px}.vis .seg button{min-height:44px;padding:4px 14px}
+.vis.wait{background:var(--acc)}.vis.host h4{margin:14px 0 6px;font-size:15px}
+.plist{list-style:none;margin:0;padding:0;display:grid;gap:6px}.plist li{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--paper);border-radius:var(--r1);padding:8px 8px 8px 14px}.plist span{display:flex;gap:6px}
+.tgl{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;min-height:44px}.tgl input{width:20px;height:20px;accent-color:var(--ink)}
 .pickf{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .pickf label{display:flex;gap:8px;align-items:center;border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 14px;min-height:44px;cursor:pointer}
 .pickf label:has(input:checked){border-color:var(--ink);background:var(--tint);font-weight:700}
@@ -330,7 +333,9 @@ tr.cur td{background:var(--panel)}
         <li>만다라트와 비전보드는 '이미지로 저장'을 눌러 폰 배경화면 등으로 저장할 수 있어요.</li></ol></section>
       <section><h3>친구와 함께</h3><ul>
         <li id="helpShare">각자 자기 계획만 고칠 수 있고, 친구 계획은 '함께 보기'에서 볼 수 있어요.</li>
-        <li>'함께 보기'에서 공개 범위를 정해요: 모두에게, 고른 친구만(여러 명), 나만 보기.</li></ul>
+        <li>'함께 보기'에서 공개 범위를 정해요: 모두에게, 고른 친구만(여러 명), 나만 보기.</li>
+        <li>초대 링크로 들어온 친구는 방장(링크를 처음 만든 사람)이 승인해야 다른 사람 계획을 볼 수 있어요.</li>
+        <li>로그인하지 않으면 이 기기에만 저장되고, 아무도 보거나 고칠 수 없어요.</li></ul>
         <h3 style="margin-top:14px">해마다</h3><ul><li>위쪽 연도 메뉴의 '+ 새 해 시작'으로 다음 해 노트를 만들어요. 지난 기록은 그대로 남아요.</li><li>쓰는 즉시 자동으로 저장돼요.</li></ul></section>
     </div>
   </div>
@@ -427,10 +432,15 @@ function yearsList(){return Object.keys(U.years).filter(y=>!isEmpty(U.years[y])|
 function setYear(y){YEAR=y;if(!U.years[y])U.years[y]=blankBoard();B=U.years[y];ls.set('nyp-yr',y)}
 {const saved=ls.get('nyp-yr'),have=Object.keys(U.years).filter(y=>!isEmpty(U.years[y])).sort();setYear(saved&&U.years[saved]?saved:have.includes(PLAN)||!have.length?PLAN:have[have.length-1])}
 function setSync(t){$('#sync').textContent=t}
+let ROOMDOC=null;
+const joined=()=>!FB_ON||!!(ROOMDOC&&(ROOMDOC.owner===me||(ROOMDOC.open&&!(ROOMDOC.blocked||[]).includes(me))||(ROOMDOC.approved||[]).includes(me)));
+const isHost=()=>FB_ON&&!!ROOMDOC&&ROOMDOC.owner===me;
+function shareLabel(){if(!canWrite)return '이 기기에만 저장';if(FB_ON&&ROOMDOC&&!joined())return '방장 승인 대기 중';
+  return U.vis==='none'?'나만 보기 · 저장됨':U.vis==='some'?(U.viewers.length?`친구 ${U.viewers.length}명에게 공유 중`:'아직 아무에게도 공개 안 함'):'친구 모두에게 공유 중'}
 function toast(t){const e=$('#toast');e.textContent=t;e.style.pointerEvents='none';e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2400)}
 function changed(full){U.updatedAt=Date.now();ls.set(LK,JSON.stringify(U));clearTimeout(timer);timer=setTimeout(()=>{timer=null;flush()},700);refresh();if(full)render()}
 async function flush(){if(!Store.save||!me||!canWrite)return;if(saving){pending=true;return}saving=true;setSync('저장 중…');
-  try{await Store.save(ser(U,myWho));setSync('저장됨 · 공유 중')}
+  try{await Store.save(ser(U,myWho));setSync(shareLabel())}
   catch(e){const c=e&&e.code||'';if(c==='invalid_argument'||c==='permission-denied'){canWrite=false;setSync('공유 저장 안 됨 · 이 기기에만 저장');toast('공유 저장 권한이 없어요. 계획은 이 기기에 저장돼요.')}
     else if(/unavailable|deadline/.test(c)){setTimeout(flush,1800+Math.random()*1800)}else if(/quota|exhausted/.test(c))setSync('저장 공간이 부족해요');else setSync('저장 실패 · 잠시 후 다시 시도해요')}
   saving=false;if(pending){pending=false;flush()}}
@@ -481,7 +491,16 @@ const canSee=(id,u)=>id===me||(u&&(u.vis==='all'||(u.vis==='some'&&u.viewers.inc
 const visible=()=>Object.keys(boards).filter(id=>id!==me&&canSee(id,boards[id]));
 const VIS={all:['모두에게','이 페이지를 함께 쓰는 친구 모두가 내 계획을 볼 수 있어요.'],some:['고른 친구만','체크한 친구만 볼 수 있어요. 여러 명 고를 수 있어요.'],none:['나만 보기','나만 볼 수 있어요. 친구 목록에서도 내 계획이 숨겨져요.']};
 function visLabel(){return U.vis==='some'?`${U.viewers.length}명에게 공개`:U.vis==='none'?'나만 보기':'전체 공개'}
-function memberIds(){const ids=new Set([...Object.keys(members),...Object.keys(boards)]);ids.delete(me);return [...ids]}
+function memberIds(){let ids=new Set([...Object.keys(members),...Object.keys(boards)]);if(FB_ON&&ROOMDOC&&!ROOMDOC.open){const ok=new Set([ROOMDOC.owner,...(ROOMDOC.approved||[])]);ids=new Set([...ids].filter(i=>ok.has(i)))}ids.delete(me);return [...ids]}
+function roomCard(){if(!FB_ON||!shared||!ROOMDOC)return '';
+  if(!joined())return `<section class="vis wait"><h3>방장의 승인을 기다리고 있어요</h3><p class="tip" style="margin-top:6px">승인되면 친구들 계획이 여기 보여요. 그 사이에도 내 계획은 계속 쓰고 저장할 수 있어요.</p></section>`;
+  if(!isHost())return '';
+  const ok=new Set([ROOMDOC.owner,...(ROOMDOC.approved||[])]),bl=new Set(ROOMDOC.blocked||[]),ids=Object.keys(members).filter(i=>i!==me);
+  const pend=ROOMDOC.open?[]:ids.filter(i=>!ok.has(i)&&!bl.has(i)),inn=ids.filter(i=>ok.has(i)||(ROOMDOC.open&&!bl.has(i)));
+  return `<section class="vis host"><div class="ph" style="margin-bottom:6px"><div><h3>참여 관리 <span class="tag">방장</span></h3><p>초대 링크로 들어온 사람은 승인해야 친구들 계획을 볼 수 있어요.</p></div>
+  <label class="tgl"><input type="checkbox" data-open${ROOMDOC.open?' checked':''}><span>승인 없이 바로 참여</span></label></div>
+  ${pend.length?`<h4>참여 요청 ${pend.length}</h4><ul class="plist">${pend.map(i=>`<li><b>${esc(dname(i,boards[i]))}</b><span><button class="btn sm pri" data-approve="${esc(i)}">승인</button><button class="btn sm" data-deny="${esc(i)}">거절</button></span></li>`).join('')}</ul>`:`<p class="tip" style="margin-top:6px">${ROOMDOC.open?'지금은 링크만 있으면 누구나 바로 참여해요.':'새 참여 요청이 없어요.'}</p>`}
+  ${inn.length?`<h4>함께하는 친구 ${inn.length}</h4><ul class="plist">${inn.map(i=>`<li><b>${esc(dname(i,boards[i]))}</b><span><button class="btn sm" data-kick="${esc(i)}">내보내기</button></span></li>`).join('')}</ul>`:''}</section>`}
 function visCard(){const ms=memberIds();return `<section class="vis"><h3>내 계획 공개 범위</h3><div class="seg" role="group" aria-label="공개 범위">${Object.entries(VIS).map(([k,[n]])=>`<button data-vis="${k}" aria-pressed="${U.vis===k}">${n}</button>`).join('')}</div>
   <p class="tip" style="margin-top:8px">${VIS[U.vis][1]}${U.vis==='some'&&!FB_ON?' (클로드 버전에서는 화면에서만 가려져요.)':''}</p>
   ${U.vis==='some'?(ms.length?`<div class="pickf">${ms.map(id=>`<label><input type="checkbox" data-viewer="${esc(id)}"${U.viewers.includes(id)?' checked':''}>${esc(dname(id,boards[id]))}</label>`).join('')}</div>`:'<p class="tip">아직 들어온 친구가 없어요. 친구가 이 페이지에 들어와 로그인하면 여기에 나타나요.</p>'):''}</section>`}
@@ -550,7 +569,7 @@ function vTogether(){const head=ph('함께 보기','같은 페이지에서 쓴 �
   const all={};for(const id of visible())if(boards[id].years[YEAR]&&!isEmpty(boards[id].years[YEAR]))all[id]=boards[id];all[me]=U;
   const ids=Object.keys(all).sort((a,b)=>stats(all[b].years[YEAR]).rate-stats(all[a].years[YEAR]).rate);
   const nameAsk=!(U.name.trim()||names[me]||myWho)?`<div class="empty"><p>친구에게 보일 이름을 정해 주세요.</p><button class="btn" data-prefs>이름 정하기</button></div>`:'';
-  return head+nameAsk+visCard()+invite()+(ids.length<2?`<div class="note-box" style="margin:12px 0">아직 함께 쓰는 친구가 없어요.${FB_ON?' 초대 링크를 보내 보세요.':''}</div>`:'')+ids.map((id,n)=>{const u=all[id],b=u.years[YEAR],s=stats(b),op=openF===id;
+  return head+nameAsk+roomCard()+visCard()+invite()+(ids.length<2?`<div class="note-box" style="margin:12px 0">아직 함께 쓰는 친구가 없어요.${FB_ON?' 초대 링크를 보내 보세요.':''}</div>`:'')+ids.map((id,n)=>{const u=all[id],b=u.years[YEAR],s=stats(b),op=openF===id;
     const sg=STAGES.map(t=>b.stages[t.k]&&b.stages[t.k].at?`<span class="tag">${t.n} ${pct(b.stages[t.k].rate)}%</span>`:'').join('');
     return `<div class="fr"><div class="frh"><span class="rk">${n+1}</span><div class="frn"><b>${esc(dname(id,u))}${id===me?`<span class="me">나 · ${visLabel()}</span>`:''}</b><span>${esc(b.center)||'핵심 목표 미정'}${b.keyword?' · '+esc(b.keyword):''}</span></div>
     <div class="trkw">${bar('달성률',s.rate)}</div><button class="btn sm" data-friend="${esc(id)}" aria-expanded="${op}">${op?'접기':'계획 보기'}</button>
@@ -578,7 +597,7 @@ function vVision(){const a=visArr(YEAR);let cells='';
     const g=POS.indexOf(c),im=a[g];
     cells+=`<div class="vc"><span class="vg">${esc(gname(B,g))}</span><label class="vimg${im?' has':''}">${im?`<img src="${im}" alt="${esc(gname(B,g))} 사진">`:`<span class="vadd">${ic('img')}<span>사진 넣기</span></span>`}<input type="file" accept="image/*" data-vup="${g}" class="sr"></label>
     ${im?`<button class="vdel" data-vdel="${g}" aria-label="${esc(gname(B,g))} 사진 빼기" title="사진 빼기"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`:''}<div class="vbar"><input data-vcap="${g}" maxlength="40" value="${esc(B.vcap[g])}" placeholder="한 줄 설명" aria-label="${esc(gname(B,g))} 사진 설명"></div></div>`}
-  return ph('비전보드','이루고 싶은 장면을 사진으로 붙여 두면 매일 떠올리기 쉬워요. 세부 목표마다 한 장씩, 가운데에는 올해의 다짐이 들어가요.',`<button class="btn" data-export="vision">${ic('img')}이미지로 저장</button>`)+
+  return ph('비전보드','세부 목표마다 이루고 싶은 장면을 사진으로 한 장씩 붙여 보세요.',`<button class="btn" data-export="vision">${ic('img')}이미지로 저장</button>`)+
   `<div class="vb">${cells}</div><p class="tip">사진은 정사각형으로 잘려서 들어가요.${FB_ON?(shared?' 공개 범위에 따라 친구도 볼 수 있어요.':' 로그인하면 친구와 공유돼요.'):' 이 미리보기에서는 사진이 이 기기에만 저장돼요.'}</p>`+next('lists','버킷리스트로','꾸준히 할 건 만다라트에, 한 번 해 보고 싶은 건 버킷리스트에')}
 function friendVision(id,b){const k=id+'_'+YEAR;if(!(k in FVIS)&&Store.visLoad){FVB[k]=null;Store.visLoad(id,YEAR).then(r=>{FVB[k]=Array.isArray(r)?r:[];if(view==='together'&&!editing())render()}).catch(()=>{FVB[k]=[]})}
   const a=FVB[k];if(!a||!a.some(Boolean))return'';
@@ -703,7 +722,7 @@ document.addEventListener('click',e=>{if(e.target.id==='exm'){closeEx();return}
   if(d.pclose!=null){setPanel(null);return}
   if(d.panel){setPanel($('#'+d.panel).hidden?d.panel:null);return}
   if(d.prefs!=null){setPanel('prefs');return}
-  if(d.vis){if(U.vis!==d.vis){U.vis=d.vis;changed(true);toast(VIS[d.vis][0]+(d.vis==='some'?' — 볼 수 있는 친구를 골라 주세요':'로 바꿨어요'))}return}
+  if(d.vis){if(U.vis!==d.vis){U.vis=d.vis;changed(true);if(shared)setSync(shareLabel());toast(VIS[d.vis][0]+(d.vis==='some'?' — 볼 수 있는 친구를 골라 주세요':'로 바꿨어요'))}return}
   if(t.id==='auth'||t.id==='logout'){doAuth();return}
   if(t.id==='undo'&&lastDel){const f=lastDel;lastDel=null;$('#toast').classList.remove('on');f();changed(true);return}
   if(d.go){nav(d.go);return}
@@ -733,6 +752,9 @@ document.addEventListener('click',e=>{if(e.target.id==='exm'){closeEx();return}
   if(d.exkind){exKind=d.exkind;fillEx();return}
   if(d.exsave){saveEx(d.exsave,t);return}
   if(t.classList.contains('exclose')){closeEx();return}
+  if(d.approve){Store.room&&Store.room('approve',d.approve);return}
+  if(d.deny){Store.room&&Store.room('deny',d.deny);return}
+  if(d.kick){Store.room&&Store.room('deny',d.kick);toast('내보냈어요. 이제 친구들 계획을 볼 수 없어요');return}
   if(d.vdel){const a=visArr(YEAR);a[+d.vdel]='';saveVis(YEAR);render();return}
 });
 document.addEventListener('input',e=>{const t=e.target,d=t.dataset;
@@ -749,8 +771,9 @@ document.addEventListener('input',e=>{const t=e.target,d=t.dataset;
     const sb=t.parentElement.querySelector('.st');if(sb)sb.hidden=!has;t.parentElement.className='fc '+(has?'s'+a.s:'');
     document.querySelectorAll(`#ov [data-k="${k}"]`).forEach(o=>o.className='oc '+(has?'s'+a.s:''))}
   document.querySelectorAll(`#ov [data-k="${k}"] span`).forEach(o=>o.textContent=v);changed(false)});
-document.addEventListener('change',async e=>{const vu=e.target.dataset&&e.target.dataset.vup;if(vu!=null&&e.target.files&&e.target.files[0]){const f=e.target.files[0];if(!/^image\//.test(f.type)){toast('사진 파일만 넣을 수 있어요');return}try{const d=await shrink(f);visArr(YEAR)[+vu]=d;saveVis(YEAR);render();toast('사진을 넣었어요')}catch(err){toast('이 사진은 열 수 없어요. 다른 사진을 골라 주세요')}return}
-  const vw=e.target.dataset&&e.target.dataset.viewer;if(vw!=null){const on=e.target.checked;U.viewers=U.viewers.filter(x=>x!==vw);if(on)U.viewers.push(vw);changed(false);renderSteps();const me_=document.querySelector('.me');if(me_)me_.textContent='나 · '+visLabel();return}
+document.addEventListener('change',async e=>{if(e.target.dataset&&e.target.dataset.open!=null){Store.room&&Store.room('open',e.target.checked);return}
+  const vu=e.target.dataset&&e.target.dataset.vup;if(vu!=null&&e.target.files&&e.target.files[0]){const f=e.target.files[0];if(!/^image\//.test(f.type)){toast('사진 파일만 넣을 수 있어요');return}try{const d=await shrink(f);visArr(YEAR)[+vu]=d;saveVis(YEAR);render();toast('사진을 넣었어요')}catch(err){toast('이 사진은 열 수 없어요. 다른 사진을 골라 주세요')}return}
+  const vw=e.target.dataset&&e.target.dataset.viewer;if(vw!=null){const on=e.target.checked;U.viewers=U.viewers.filter(x=>x!==vw);if(on)U.viewers.push(vw);changed(false);if(shared)setSync(shareLabel());renderSteps();const me_=document.querySelector('.me');if(me_)me_.textContent='나 · '+visLabel();return}
   if(e.target.id!=='yr')return;const v=e.target.value;if(v==='new'){e.target.value=YEAR;nav('newyear')}else{setYear(v);render();toast(v+'년 노트를 열었어요')}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#exm').hidden){closeEx();return}
   if(e.key==='Escape'&&(!$('#prefs').hidden||!$('#help').hidden)){const w=!$('#help').hidden?'help':'prefs';setPanel(null);$('#'+w+'Btn').focus()}
@@ -782,7 +805,7 @@ function onRemote(list,fromCache){const nb={};list.forEach(([id,d])=>{nb[id]=nor
   if(!gotRemote&&(mine||!fromCache)){gotRemote=true;
     if(mine&&(mine.updatedAt>=U.updatedAt||uEmpty(U))){U=mine;setYear(U.years[YEAR]||!Object.keys(U.years).length?YEAR:Object.keys(U.years).sort().pop());ls.set(LK,JSON.stringify(U))}else if(!uEmpty(U))changed(false)}
   else if(mine&&!saving&&!timer&&!editing()&&mine.updatedAt>U.updatedAt){U=mine;setYear(YEAR)}
-  if(!saving&&!timer)setSync(canWrite?'공유 중':'이 기기에만 저장');if(Store.names)Store.names([...new Set([...Object.keys(nb),me])]);editing()?needRender=true:render()}
+  if(!saving&&!timer)setSync(shareLabel());if(Store.names)Store.names([...new Set([...Object.keys(nb),me])]);editing()?needRender=true:render()}
 let FB=null,unsub=null;
 async function doAuth(){if(!FB)return;const{Au,auth}=FB;if(me){await Au.signOut(auth);return}
   try{await Au.signInWithPopup(auth,new Au.GoogleAuthProvider())}catch(e){const c=e&&e.code||'';
@@ -797,7 +820,12 @@ async function initFirebase(){try{const base='https://www.gstatic.com/firebasejs
     Store.save=async data=>{await F.setDoc(F.doc(col,me),data);putMember()};
     Store.visLoad=async(uid,y)=>{const d=await F.getDoc(F.doc(fs,'rooms',ROOM,'vision',uid,'years',String(y)));return d.exists()?(d.data().imgs||[]):null};
     Store.visSave=(y,imgs)=>F.setDoc(F.doc(fs,'rooms',ROOM,'vision',me,'years',String(y)),{imgs:imgs.map(x=>x||''),updatedAt:Date.now()});
-    Au.onAuthStateChanged(auth,u=>{unsubs.forEach(f=>f());unsubs=[];boards={};members={};lastMem=null;
+    const rref=F.doc(fs,'rooms',ROOM);
+    Store.room=async(act,v)=>{if(!isHost())return;try{if(act==='open')await F.updateDoc(rref,{open:!!v});
+      else if(act==='approve')await F.updateDoc(rref,{approved:F.arrayUnion(v),blocked:F.arrayRemove(v)});
+      else if(act==='deny')await F.updateDoc(rref,{approved:F.arrayRemove(v),blocked:F.arrayUnion(v)});
+      toast(act==='approve'?'승인했어요':act==='open'?(v?'이제 링크만 있으면 바로 참여해요':'이제 승인한 사람만 참여해요'):'처리했어요')}catch(e){toast('처리하지 못했어요. 다시 시도해 주세요')}};
+    Au.onAuthStateChanged(auth,u=>{unsubs.forEach(f=>f());unsubs=[];boards={};members={};lastMem=null;ROOMDOC=null;
       if(!u){me=null;shared=false;myWho='';ab.hidden=false;$('#acct').hidden=true;setSync('로그인하면 친구와 공유돼요');editing()?needRender=true:render();return}
       me=u.uid;myWho=u.displayName||'';shared=true;canWrite=true;gotRemote=false;ab.hidden=true;$('#acct').hidden=false;$('#acctName').textContent=(u.displayName||'')+(u.email?' · '+u.email:'');setSync('연결 중…');putMember();
       const lt=setTimeout(()=>setSync('연결이 늦어지고 있어요'),10000),parts={all:{},some:{}};let own,ownCache=true;
@@ -805,8 +833,12 @@ async function initFirebase(){try{const base='https://www.gstatic.com/firebasejs
       const err=e=>{clearTimeout(lt);setSync(e&&e.code==='permission-denied'?'읽기 권한 없음 · 보안 규칙 확인':'공유 연결이 끊겼어요 · 이 기기에 저장 중')};
       const toMap=sn=>Object.fromEntries(sn.docs.map(d=>[d.id,d.data()]));
       unsubs.push(F.onSnapshot(F.doc(col,me),d=>{if(!d.metadata.fromCache)clearTimeout(lt);own=d.exists()?d.data():null;ownCache=d.metadata.fromCache;merge()},err));
-      unsubs.push(F.onSnapshot(F.query(col,F.where('vis','==','all')),sn=>{parts.all=toMap(sn);merge()},err));
-      unsubs.push(F.onSnapshot(F.query(col,F.where('viewers','array-contains',me)),sn=>{parts.some=toMap(sn);merge()},err));
+      let qsub=[];const openQ=()=>{if(qsub.length)return;qsub.push(F.onSnapshot(F.query(col,F.where('vis','==','all')),sn=>{parts.all=toMap(sn);merge()},err));
+        qsub.push(F.onSnapshot(F.query(col,F.where('viewers','array-contains',me)),sn=>{parts.some=toMap(sn);merge()},err))};
+      const closeQ=()=>{qsub.forEach(f=>f());qsub=[];parts.all={};parts.some={};merge()};
+      unsubs.push(()=>closeQ());
+      unsubs.push(F.onSnapshot(rref,async d=>{if(!d.exists()){if(!d.metadata.fromCache){try{await F.setDoc(rref,{owner:me,approved:[me],blocked:[],open:false,at:Date.now()})}catch(e){}}return}
+        ROOMDOC=d.data()||{};if(joined())openQ();else closeQ();setSync(shareLabel());if(!editing())render();else needRender=true},()=>{}));
       unsubs.push(F.onSnapshot(mcol,sn=>{members={};sn.docs.forEach(d=>{const x=d.data()||{};members[d.id]=String(x.name||x.who||'').slice(0,40)});if(view==='together'&&!editing())render()},()=>{}))})
   }catch(e){setSync('공유 연결 실패 · 이 기기에만 저장')}}
 async function initClaude(){let db=null,user=null;try{[db,user]=await Promise.all([claude.use('db'),claude.use('user')])}catch(e){}

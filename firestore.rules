@@ -1,21 +1,34 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 초대 링크(room)에 들어온 사람 목록: 이름만. 로그인하면 읽기, 본인만 쓰기.
-    match /rooms/{room}/members/{uid} {
+    // 방(초대 링크) 정보: 방장, 승인된 사람, 거절된 사람, 바로 참여 허용 여부
+    function room(r) { return get(/databases/$(database)/documents/rooms/$(r)).data; }
+    function joined(r) {
+      return request.auth.uid == room(r).owner
+        || request.auth.uid in room(r).approved
+        || (room(r).open == true && !(request.auth.uid in room(r).blocked));
+    }
+    match /rooms/{r} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.approved == [request.auth.uid]
+        && request.resource.data.keys().hasOnly(['owner','approved','blocked','open','at']);
+      allow update: if request.auth != null && resource.data.owner == request.auth.uid
+        && request.resource.data.owner == resource.data.owner
+        && request.resource.data.keys().hasOnly(['owner','approved','blocked','open','at']);
+    }
+    // 들어온 사람 목록(이름만): 방장이 참여 요청을 보는 데 써요
+    match /rooms/{r}/members/{uid} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['name','who','at']);
     }
-    // 각자의 계획. 본인은 항상, 다른 사람은 공개 범위에 따라서만 읽을 수 있어요.
-    //   vis == 'all'  : 로그인한 모든 참여자
-    //   vis == 'some' : viewers 목록에 있는 친구만
-    //   vis == 'none' : 본인만
-    match /rooms/{room}/boards/{uid} {
+    // 각자의 계획: 본인은 항상, 다른 사람은 '승인된 참여자'이면서 공개 범위 안에 있을 때만
+    match /rooms/{r}/boards/{uid} {
       allow read: if request.auth != null && (
         request.auth.uid == uid
-        || resource.data.vis == 'all'
-        || request.auth.uid in resource.data.viewers);
+        || (joined(r) && (resource.data.vis == 'all' || request.auth.uid in resource.data.viewers)));
       allow create, update: if request.auth != null && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['name','theme','font','fsz','who','years','updatedAt','vis','viewers'])
         && request.resource.data.vis in ['all','some','none']
@@ -24,12 +37,13 @@ service cloud.firestore {
         && (request.resource.data.vis == 'some' || request.resource.data.viewers.size() == 0);
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
-    // 비전보드 사진: 연도별 문서 하나. 본인만 쓰고, 읽기는 계획 공개 범위를 그대로 따라요.
-    match /rooms/{room}/vision/{uid}/years/{year} {
+    // 비전보드 사진: 계획과 같은 조건
+    match /rooms/{r}/vision/{uid}/years/{year} {
       allow read: if request.auth != null && (
         request.auth.uid == uid
-        || get(/databases/$(database)/documents/rooms/$(room)/boards/$(uid)).data.vis == 'all'
-        || request.auth.uid in get(/databases/$(database)/documents/rooms/$(room)/boards/$(uid)).data.viewers);
+        || (joined(r) && (
+          get(/databases/$(database)/documents/rooms/$(r)/boards/$(uid)).data.vis == 'all'
+          || request.auth.uid in get(/databases/$(database)/documents/rooms/$(r)/boards/$(uid)).data.viewers)));
       allow write: if request.auth != null && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['imgs','updatedAt'])
         && request.resource.data.imgs is list && request.resource.data.imgs.size() <= 8;
