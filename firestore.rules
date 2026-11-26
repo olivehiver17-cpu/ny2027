@@ -24,5 +24,15 @@ service cloud.firestore {
         && (request.resource.data.vis == 'some' || request.resource.data.viewers.size() == 0);
       allow delete: if request.auth != null && request.auth.uid == uid;
     }
+    // 비전보드 사진: 연도별 문서 하나. 본인만 쓰고, 읽기는 계획 공개 범위를 그대로 따라요.
+    match /rooms/{room}/vision/{uid}/years/{year} {
+      allow read: if request.auth != null && (
+        request.auth.uid == uid
+        || get(/databases/$(database)/documents/rooms/$(room)/boards/$(uid)).data.vis == 'all'
+        || request.auth.uid in get(/databases/$(database)/documents/rooms/$(room)/boards/$(uid)).data.viewers);
+      allow write: if request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['imgs','updatedAt'])
+        && request.resource.data.imgs is list && request.resource.data.imgs.size() <= 8;
+    }
   }
 }
