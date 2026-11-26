@@ -833,12 +833,13 @@ async function initFirebase(){try{const base='https://www.gstatic.com/firebasejs
       const err=e=>{clearTimeout(lt);setSync(e&&e.code==='permission-denied'?'읽기 권한 없음 · 보안 규칙 확인':'공유 연결이 끊겼어요 · 이 기기에 저장 중')};
       const toMap=sn=>Object.fromEntries(sn.docs.map(d=>[d.id,d.data()]));
       unsubs.push(F.onSnapshot(F.doc(col,me),d=>{if(!d.metadata.fromCache)clearTimeout(lt);own=d.exists()?d.data():null;ownCache=d.metadata.fromCache;merge()},err));
-      let qsub=[];const openQ=()=>{if(qsub.length)return;qsub.push(F.onSnapshot(F.query(col,F.where('vis','==','all')),sn=>{parts.all=toMap(sn);merge()},err));
-        qsub.push(F.onSnapshot(F.query(col,F.where('viewers','array-contains',me)),sn=>{parts.some=toMap(sn);merge()},err))};
+      let qsub=[],qretry=0;const qerr=e=>{qsub.forEach(f=>f());qsub=[];if(qretry++<3)setTimeout(()=>{if(joined())openQ()},2500*qretry);else err(e)};
+      const openQ=()=>{if(qsub.length)return;qsub.push(F.onSnapshot(F.query(col,F.where('vis','==','all')),sn=>{qretry=0;parts.all=toMap(sn);merge()},qerr));
+        qsub.push(F.onSnapshot(F.query(col,F.where('viewers','array-contains',me)),sn=>{parts.some=toMap(sn);merge()},qerr))};
       const closeQ=()=>{qsub.forEach(f=>f());qsub=[];parts.all={};parts.some={};merge()};
       unsubs.push(()=>closeQ());
       unsubs.push(F.onSnapshot(rref,async d=>{if(!d.exists()){if(!d.metadata.fromCache){try{await F.setDoc(rref,{owner:me,approved:[me],blocked:[],open:false,at:Date.now()})}catch(e){}}return}
-        ROOMDOC=d.data()||{};if(joined())openQ();else closeQ();setSync(shareLabel());if(!editing())render();else needRender=true},()=>{}));
+        ROOMDOC=d.data()||{};if(d.metadata.hasPendingWrites)return;if(joined())openQ();else closeQ();setSync(shareLabel());if(!editing())render();else needRender=true},()=>{}));
       unsubs.push(F.onSnapshot(mcol,sn=>{members={};sn.docs.forEach(d=>{const x=d.data()||{};members[d.id]=String(x.name||x.who||'').slice(0,40)});if(view==='together'&&!editing())render()},()=>{}))})
   }catch(e){setSync('공유 연결 실패 · 이 기기에만 저장')}}
 async function initClaude(){let db=null,user=null;try{[db,user]=await Promise.all([claude.use('db'),claude.use('user')])}catch(e){}
