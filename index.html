@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>우리의 2027 해돋이</title>
+<title>Happy New Year 2027 · 해돋이</title>
+<meta name="description" content="만다라트로 세우고, 친구와 함께 보고, 연말에 돌아보는 신년 계획">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Happy New Year 2027 · 해돋이">
+<meta property="og:description" content="만다라트로 세우고, 친구와 함께 보고, 연말에 돌아보는 신년 계획">
+<meta property="og:image" content="https://olivehiver17-cpu.github.io/ny2027/og.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gamja+Flower&family=Gowun+Dodum&family=Hi+Melody&family=Jua&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
@@ -423,7 +430,7 @@ function stats(b){let fa=0,va=0,full=0;const li=Array.from({length:8},()=>[0,0])
   const it=b.items.filter(x=>x.t.trim()),dn=it.filter(x=>x.done).length,tot=fa+it.length;
   return{goals,mr:fa?va/fa:0,lr:it.length?dn/it.length:0,rate:tot?(va+dn)/tot:0,fa,full,items:it.length,done:dn}}
 const mEmpty=b=>!b.center.trim()&&b.goals.every(g=>!g.trim())&&b.acts.every(r=>r.every(x=>!x.t.trim()));
-const isEmpty=b=>!b||(mEmpty(b)&&b.qa.every(q=>!q.trim())&&b.items.length===0&&!b.keyword.trim()&&!b.motto.trim());
+const isEmpty=b=>!b||(mEmpty(b)&&b.qa.every(q=>!q.trim())&&b.items.length===0&&!b.keyword.trim()&&!b.motto.trim()&&(b.months||[]).every(m=>!m.trim())&&(b.awards||[]).every(a=>!a.trim())&&!Object.values(b.stages||{}).some(x=>x&&(x.at||(x.note||'').trim())));
 const uEmpty=u=>Object.values(u.years).every(isEmpty)&&!u.name;
 const ser=(u,who)=>{const o=JSON.parse(JSON.stringify(u));for(const y in o.years)o.years[y].acts=u.years[y].acts.flat();if(who)o.who=who;delete o.vis;delete o.viewers;return o};
 const pubCopy=(data,room)=>{const v=(data.roomVis&&data.roomVis[room])||{vis:'all',viewers:[]};return{name:data.name||'',who:data.who||'',theme:data.theme,font:data.font,fsz:data.fsz,years:data.years,updatedAt:data.updatedAt||0,vis:v.vis,viewers:v.vis==='some'?(v.viewers||[]):[]}};
@@ -442,7 +449,7 @@ function load(){const a=ls.get(LK);if(a)try{return normUser(JSON.parse(a))}catch
   return blankUser()}
 let members={},U=load(),YEAR,B,me=null,myWho='',boards={},names={},view='mandala',focus=4,filt='all',editId=null,shared=false,canWrite=true,openF=null,saving=false,pending=false,timer=null,gotRemote=false,needRender=false,lastDel=null;
 const Store={save:null,names:null};
-function yearsList(){return Object.keys(U.years).filter(y=>!isEmpty(U.years[y])||y===YEAR).sort().reverse()}
+function yearsList(){return Object.keys(U.years).filter(y=>!isEmpty(U.years[y])||y===YEAR||y===PLAN).sort().reverse()}
 function setYear(y){YEAR=y;if(!U.years[y])U.years[y]=blankBoard();B=U.years[y];ls.set('nyp-yr',y)}
 {const saved=ls.get('nyp-yr'),have=Object.keys(U.years).filter(y=>!isEmpty(U.years[y])).sort();setYear(saved&&U.years[saved]?saved:have.includes(PLAN)||!have.length?PLAN:have[have.length-1])}
 function setSync(t){$('#sync').textContent=t}
@@ -487,6 +494,7 @@ function burst(){if(BURST)return BURST;const W=580,H=120,tx=26,ty=18,pts=[];let 
   for(let x=10;x<10+W;x+=tx)pts.push([x,10],[x+tx/2,10-ty*rnd()]);for(let y=10;y<10+H;y+=ty+4)pts.push([10+W,y],[10+W+ty*rnd(),y+(ty+4)/2]);
   for(let x=10+W;x>10;x-=tx)pts.push([x,10+H],[x-tx/2,10+H+ty*rnd()]);for(let y=10+H;y>10;y-=ty+4)pts.push([10,y],[10-ty*rnd(),y-(ty+4)/2]);
   return BURST=`<svg viewBox="0 0 600 140" preserveAspectRatio="none" aria-hidden="true"><polygon points="${pts.map(q=>q.map(v=>v.toFixed(1)).join(',')).join(' ')}" style="fill:var(--acc);stroke:var(--ink)" stroke-width="2.6" stroke-linejoin="round" vector-effect="non-scaling-stroke" filter="url(#rough)"/></svg>`}
+const P1=String(+PLAN-1),retroOnly=()=>+YEAR<+PLAN&&mEmpty(B)&&B.items.length===0;
 const yl=()=>YEAR===PLAN?'올해':YEAR+'년';
 function mstat(){if(mEmpty(B))return `<p class="me0"><b>빈 만다라트예요.</b> 가운데 핵심 목표부터 써 보세요. ${B.qa.some(q=>q.trim())?"'나에게 묻기'에 쓴 답을 떠올리면 쉬워요. ":''}막막하면 예시를 불러와서 고쳐 써도 돼요.</p><button class="btn" data-sample>예시로 채워보기</button>`;
   const s=stats(B),ng=B.goals.filter(g=>g.trim()).length,segs=B.acts.map((r,g)=>{const n=r.filter(a=>a.t.trim()).length,d=r.filter(a=>a.t.trim()&&a.s===2).length;return `<span class="sg${POS[g]===focus?' on':''}" title="${esc(gname(B,g))} · ${n}/8칸 · 완료 ${d}"><i style="height:${n/8*100}%"></i></span>`}).join('');
@@ -557,19 +565,22 @@ function vCheck(){const s=stats(B);
   const doneItems=B.items.filter(x=>x.done);
   const ys=Object.keys(U.years).filter(y=>!isEmpty(U.years[y])).sort().reverse();
   const arch=ys.map(y=>{const b=U.years[y],st=stats(b),f=b.stages.final;return `<tr class="${y===YEAR?'cur':''}"><td data-l="연도"><b>${y}</b></td><td data-l="핵심 목표">${esc(b.center)||'-'}</td><td data-l="키워드">${esc(b.keyword)||'-'}</td><td data-l="달성률" class="num">${f&&f.at?pct(f.rate)+'% <small style="font-weight:400;color:var(--mut)">정산</small>':pct(st.rate)+'% <small style="font-weight:400;color:var(--mut)">진행 중</small>'}</td><td>${y===YEAR?'<span class="tag">보는 중</span>':`<button class="lnk" data-year="${y}">열기</button>`}</td></tr>`}).join('');
-  return ph('돌아보기','1월, 여름, 12월에 한 번씩 지금 모습을 남겨 두면 얼마나 왔는지 한눈에 보여요. 연말엔 월별 키워드와 올해의 ○○도 채워 봐요.',dday())+`<div class="stages">${cards}</div>
+  const top=ph('돌아보기','1월, 여름, 12월에 한 번씩 지금 모습을 남겨 두면 얼마나 왔는지 한눈에 보여요. 연말엔 월별 키워드와 올해의 ○○도 채워 봐요.',dday())+`<div class="stages">${cards}</div>
   <div class="two"><section><h3>얼마나 왔을까</h3><div class="bars">${hist}</div><h3 style="margin-top:28px">세부 목표별 달성률</h3><p class="tip" style="margin-top:4px">만다라트 실천과, 그 목표에 연결한 버킷리스트 항목을 함께 계산해요.</p><div class="bars">${gb||'<span class="tip">만다라트 실천을 채우면 목표별로 보여요.</span>'}</div></section>
   <section class="rep"><h3>나의 한 해 리포트</h3><p class="tip" style="margin-top:4px">지금까지의 기록으로 바로 계산돼요.</p>
   <div class="bars" style="margin-top:6px">${bar('전체',s.rate)}${bar('만다라트',s.mr)}${bar('리스트',s.lr)}</div>
   <ul><li>완료한 실천 <b>${s.full}</b>개 / 적은 실천 ${s.fa}개</li><li>이룬 리스트 <b>${s.done}</b>개 / ${s.items}개${B.items.some(x=>x.k==='bucket')?` (꼭 해볼 것 ${B.items.filter(x=>x.k==='bucket'&&x.done).length}/${B.items.filter(x=>x.k==='bucket').length})`:''}</li>
   ${ranked.length?`<li>가장 잘한 목표: <b>${esc(ranked[0][0])}</b> ${pct(ranked[0][1])}%</li>`:''}${ranked.length>1?`<li>더 힘낼 목표: <b>${esc(ranked[ranked.length-1][0])}</b> ${pct(ranked[ranked.length-1][1])}%</li>`:''}</ul>
   ${doneItems.length?`<h3 style="margin-top:18px;font-size:calc(18px*var(--fa))">이룬 것들</h3><ul>${doneItems.slice(0,12).map(x=>`<li>${esc(x.t)}</li>`).join('')}</ul>`:''}</section></div>
-  <section class="mon"><div class="ph" style="margin-bottom:12px"><div><h3>월별 키워드</h3><p>달마다 떠오르는 단어 한두 개만 적어도 한 해가 선명해져요.</p></div></div>
+`;
+  const monS=`  <section class="mon"><div class="ph" style="margin-bottom:12px"><div><h3>월별 키워드</h3><p>달마다 떠오르는 단어 한두 개만 적어도 한 해가 선명해져요.</p></div></div>
   <div class="mgrid">${B.months.map((m,i)=>`<label class="mcell${curMon()===i?' now':''}"><span>${i+1}월</span><input data-mon="${i}" maxlength="60" value="${esc(m)}" placeholder="${curMon()===i?'이번 달은?':''}" autocomplete="off"></label>`).join('')}</div></section>
-  <section class="aw"><div class="ph" style="margin-bottom:12px"><div><h3>올해의 ○○</h3><p>연말결산 문답이에요. 내년 이맘때 하나씩 채워 보세요.</p></div><span class="tag">${B.awards.filter(a=>a.trim()).length}/${AW.length}</span></div>
+`,awS=`  <section class="aw"><div class="ph" style="margin-bottom:12px"><div><h3>올해의 ○○</h3><p>연말결산 문답이에요. 내년 이맘때 하나씩 채워 보세요.</p></div><span class="tag">${B.awards.filter(a=>a.trim()).length}/${AW.length}</span></div>
   <div class="agrid">${AW.map((q,i)=>`<label class="acell"><span>${q}</span><input data-aw="${i}" maxlength="80" value="${esc(B.awards[i])}" autocomplete="off"></label>`).join('')}</div></section>
-  <section style="margin-top:38px"><div class="ph" style="margin-bottom:0"><div><h3>해마다 쌓이는 기록</h3><p>한 해가 끝나면 새 해를 시작해도 지난 기록은 그대로 남아요.</p></div><button class="btn" data-go="newyear">새 해 시작하기</button></div>
-  ${arch?`<table class="stack"><thead><tr><th>연도</th><th>핵심 목표</th><th>키워드</th><th style="text-align:right">달성률</th><th></th></tr></thead><tbody>${arch}</tbody></table>`:'<p class="tip">아직 쌓인 기록이 없어요.</p>'}</section>`}
+`,arcS=`  <section style="margin-top:38px"><div class="ph" style="margin-bottom:0"><div><h3>해마다 쌓이는 기록</h3><p>한 해가 끝나면 새 해를 시작해도 지난 기록은 그대로 남아요.</p></div><button class="btn" data-go="newyear">새 해 시작하기</button></div>
+  ${arch?`<table class="stack"><thead><tr><th>연도</th><th>핵심 목표</th><th>키워드</th><th style="text-align:right">달성률</th><th></th></tr></thead><tbody>${arch}</tbody></table>`:'<p class="tip">아직 쌓인 기록이 없어요.</p>'}</section>`;
+  if(retroOnly())return ph(YEAR+' 돌아보기',YEAR+'년은 계획 없이 회고만 남겨도 돼요. 달마다 떠오르는 단어와 올해의 ○○부터 채워 보세요.')+`<div class="note-box" style="margin:0 0 8px">이 해에 만다라트나 버킷리스트를 쓰면 달성률 기록 칸도 함께 나타나요.</div>`+monS+awS+arcS;
+  return top+monS+awS+arcS}
 
 function vNewYear(){const ys=Object.keys(U.years).map(Number),nx=String(Math.max(+PLAN-1,...ys)+1),src=U.years[YEAR];
   return ph('새 해 시작하기',`지금 보고 있는 ${YEAR}년 기록은 그대로 두고 새 연도 노트를 만들어요. 이어 갈 것만 골라 주세요.`)+`<form class="nyf" id="nyf">
@@ -702,7 +713,7 @@ function renderSteps(){const s=stats(B),rec=STAGES.filter(t=>B.stages[t.k]&&B.st
   $('#steps').innerHTML=STEPS.map(([k,l,sh,v],i)=>`${i?`<span class="arrow" aria-hidden="true">${ic('chev')}</span>`:''}<button class="stp${k==='mandala'?' core':''}${sub[k][1]?' ok':''}" data-go="${k}" aria-current="${view===k}"><span class="n">${i+1}</span><span><b><span class="lf">${l}</span><span class="ls">${sh}</span></b><small>${v} · ${sub[k][0]}</small></span></button>`).join('')
    +`<span class="sep"></span><button class="stp" data-go="together" aria-current="${view==='together'}"><span class="n" aria-hidden="true">♥</span><span><b><span class="lf">함께 보기</span><span class="ls">함께</span></b><small>${shared?visLabel():'친구 계획'}</small></span></button>`}
 function bname(){return U.name.trim()||'나'}
-function renderYears(){const sel=$('#yr');sel.innerHTML=yearsList().map(y=>`<option value="${y}"${y===YEAR?' selected':''}>${y}</option>`).join('')+'<option value="new">+ 새 해 시작</option>';$('#yrtxt').textContent=YEAR}
+function renderYears(){const sel=$('#yr');sel.innerHTML=yearsList().map(y=>`<option value="${y}"${y===YEAR?' selected':''}>${y}</option>`).join('')+(!U.years[P1]||isEmpty(U.years[P1])?`<option value="prev">+ ${P1} 돌아보기</option>`:'')+'<option value="new">+ 새 해 시작</option>';$('#yrtxt').textContent=YEAR}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitAll);
 function refresh(){const s=stats(B);$('#rate').textContent=pct(s.rate)+'%';const f=$('#sunfill'),hh=Math.round(s.rate*68);f.setAttribute('height',hh);f.setAttribute('y',94-hh);
   document.querySelectorAll('[data-gr]').forEach(e=>{e.textContent=grText(s.goals[+e.dataset.gr])});
@@ -802,7 +813,7 @@ document.addEventListener('input',e=>{const t=e.target,d=t.dataset;
 document.addEventListener('change',async e=>{if(e.target.dataset&&e.target.dataset.open!=null){Store.room&&Store.room('open',e.target.checked);return}
   const vu=e.target.dataset&&e.target.dataset.vup;if(vu!=null&&e.target.files&&e.target.files[0]){const f=e.target.files[0];if(!/^image\//.test(f.type)){toast('사진 파일만 넣을 수 있어요');return}try{const d=await shrink(f);visArr(YEAR)[+vu]=d;saveVis(YEAR);render();toast('사진을 넣었어요')}catch(err){toast('이 사진은 열 수 없어요. 다른 사진을 골라 주세요')}return}
   const vw=e.target.dataset&&e.target.dataset.viewer;if(vw!=null){const on=e.target.checked;const nv=rv().viewers.filter(x=>x!==vw);if(on)nv.push(vw);setRv({viewers:nv});changed(false);if(shared)setSync(shareLabel());renderSteps();const me_=document.querySelector('.me');if(me_)me_.textContent='나 · '+visLabel();return}
-  if(e.target.id!=='yr')return;const v=e.target.value;if(v==='new'){e.target.value=YEAR;nav('newyear')}else{setYear(v);render();toast(v+'년 노트를 열었어요')}});
+  if(e.target.id!=='yr')return;const v=e.target.value;if(v==='new'){e.target.value=YEAR;nav('newyear')}else if(v==='prev'){setYear(P1);nav('check');toast(P1+'년 돌아보기를 열었어요')}else{setYear(v);render();toast(v+'년 노트를 열었어요')}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#exm').hidden){closeEx();return}
   if(e.key==='Escape'&&(!$('#prefs').hidden||!$('#help').hidden)){const w=!$('#help').hidden?'help':'prefs';setPanel(null);$('#'+w+'Btn').focus()}
   const t=e.target;if(t.classList&&t.classList.contains('edit')){if(e.key==='Enter'){e.preventDefault();saveEdit(t.dataset.edit,t.value)}else if(e.key==='Escape'){editId=null;render()}}});
