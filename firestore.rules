@@ -8,21 +8,26 @@ service cloud.firestore {
         || request.auth.uid in room(r).approved
         || (room(r).open == true && !(request.auth.uid in room(r).blocked));
     }
+    // 내 계획 원본(계정에 하나): 본인만 읽고 써요
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
     match /rooms/{r} {
       allow read: if request.auth != null;
       allow create: if request.auth != null
         && request.resource.data.owner == request.auth.uid
         && request.resource.data.approved == [request.auth.uid]
-        && request.resource.data.keys().hasOnly(['owner','approved','blocked','open','at']);
+        && request.resource.data.keys().hasOnly(['owner','approved','blocked','open','at','name']);
       allow update: if request.auth != null && resource.data.owner == request.auth.uid
         && request.resource.data.owner == resource.data.owner
-        && request.resource.data.keys().hasOnly(['owner','approved','blocked','open','at']);
+        && request.resource.data.keys().hasOnly(['owner','approved','blocked','open','at','name']);
     }
     // 들어온 사람 목록(이름만): 방장이 참여 요청을 보는 데 써요
     match /rooms/{r}/members/{uid} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['name','who','at']);
+      allow delete: if request.auth != null && request.auth.uid == uid;
     }
     // 각자의 계획: 본인은 항상, 다른 사람은 '승인된 참여자'이면서 공개 범위 안에 있을 때만
     match /rooms/{r}/boards/{uid} {
@@ -47,6 +52,7 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['imgs','updatedAt'])
         && request.resource.data.imgs is list && request.resource.data.imgs.size() <= 8;
+      allow delete: if request.auth != null && request.auth.uid == uid;
     }
   }
 }
