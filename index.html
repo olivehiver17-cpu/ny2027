@@ -357,7 +357,7 @@ tr.cur td{background:var(--panel)}
   <div class="prefs" id="prefs" hidden>
     <button class="btn sm pclose" data-pclose>닫기</button>
     <div class="in pin">
-      <div class="row" id="acct" hidden><span>계정</span><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span id="acctName"></span><button class="btn sm" id="logout">로그아웃</button></div></div>
+      <div class="row" id="acct" hidden><span>계정</span><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span id="acctName"></span></div></div>
       <label class="row"><span>내 이름 (친구에게 보여요)</span><input id="nm" maxlength="20" placeholder="예: 다람" autocomplete="off"></label>
       <div class="row"><span>컬러</span><div class="sw" id="sw" role="group" aria-label="컬러"></div></div>
       <div class="row"><span>폰트 (사이트 전체)</span><div class="fonts" id="fonts" role="group" aria-label="폰트"></div></div>
@@ -762,7 +762,7 @@ document.addEventListener('click',e=>{if(e.target.id==='exm'){closeEx();return}
   if(d.panel){setPanel($('#'+d.panel).hidden?d.panel:null);return}
   if(d.prefs!=null){setPanel('prefs');return}
   if(d.vis){if(rv().vis!==d.vis){setRv({vis:d.vis});changed(true);if(shared)setSync(shareLabel());toast(VIS[d.vis][0]+(d.vis==='some'?' — 볼 수 있는 친구를 골라 주세요':'로 바꿨어요'))}return}
-  if(t.id==='auth'||t.id==='logout'){doAuth();return}
+  if(t.id==='auth'){doAuth();return}
   if(t.id==='undo'&&lastDel){const f=lastDel;lastDel=null;$('#toast').classList.remove('on');f();changed(true);return}
   if(d.go){nav(d.go);return}
   if(d.year){setYear(d.year);nav('mandala');toast(d.year+'년 노트를 열었어요');return}
