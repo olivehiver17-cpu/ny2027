@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gamja+Flower&family=Gowun+Dodum&family=Hi+Melody&family=Jua&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 <style>
+body{word-break:keep-all;overflow-wrap:break-word}p,li,h1,h2,h3,.tip,.note-box,.past span{text-wrap:pretty}h1,h2,h3{text-wrap:balance}.sn{display:inline-block;max-width:100%}
 html,body{overflow-x:clip;overscroll-behavior-x:none}body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:text}img,svg{-webkit-user-drag:none;user-drag:none}
 @font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-4Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-7Bold.woff2') format('woff2');font-weight:700;font-display:swap}
@@ -512,7 +513,8 @@ function vMandala(){return `<section class="hero"><div><h1><span class="hl">${YE
   <section id="fx">${focusEd()}</section></div>${next('vision','비전보드 꾸미기','세부 목표마다 이루고 싶은 장면을 사진으로 붙여 봐요')}`}
 
 /* ---------- 공용 조각 ---------- */
-const ph=(t,d,extra='')=>`${pastNote()}<div class="ph"><div><h2>${t}</h2><p>${d}</p></div>${extra}</div>`;
+const sents=d=>d.includes('<')?d:d.split(/(?<=[.!?])\s+/).map(x=>`<span class="sn">${x}</span>`).join(' ');
+const ph=(t,d,extra='')=>`${pastNote()}<div class="ph"><div><h2>${t}</h2><p>${sents(d)}</p></div>${extra}</div>`;
 const next=(v,l,d)=>`<div class="next"><span>${d}</span><button class="btn pri" data-go="${v}">${l}${ic('right')}</button></div>`;
 function pastNote(){if(YEAR===PLAN&&+PLAN>NOW.getFullYear()&&(view==='ask'||view==='check')&&(!U.years[P1]||isEmpty(U.years[P1])))return `<div class="past"><span>${PLAN} 계획 전에 ${P1}년부터 돌아볼까요? 월별 키워드와 올해의 ○○만 채워도 좋아요.</span><button class="lnk" data-retro="1">${P1} 돌아보기</button></div>`;return YEAR<PLAN?`<div class="past"><span>${YEAR}년 기록을 보고 있어요. 고치면 그대로 저장돼요.</span><button class="lnk" data-year="${PLAN}">${PLAN}년으로 가기</button></div>`:''}
 function bar(l,v){return `<div class="bar"><span class="lb">${esc(l)}</span><span class="trk">${pct(v)?`<i style="width:${pct(v)}%"></i>`:''}</span><span class="v">${pct(v)}%</span></div>`}
