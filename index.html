@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gamja+Flower&family=Gowun+Dodum&family=Hi+Melody&family=Jua&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
 <style>
+html,body{overflow-x:clip;overscroll-behavior-x:none}body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:text}img,svg{-webkit-user-drag:none;user-drag:none}
 @font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-4Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'Paperlogy';src:url('fonts/Paperlogy-7Bold.woff2') format('woff2');font-weight:700;font-display:swap}
 @font-face{font-family:'Pretendard';src:url('fonts/Pretendard-Regular.subset.woff2') format('woff2');font-weight:400;font-display:swap}
@@ -930,5 +931,6 @@ async function initClaude(){let db=null,user=null;try{[db,user]=await Promise.al
 if(FB_ON){setSync('연결 중…');initFirebase()}else initClaude();
 }
 </script>
+<script>document.addEventListener('dragstart',e=>{if(!e.target.closest||!e.target.closest('input,textarea'))e.preventDefault()});</script>
 </body>
 </html>
