@@ -589,7 +589,7 @@ function roomsCard(){if(!FB_ON||!shared)return '';const L=U.myRooms;if(Store.loa
   ${ROOM&&isHost()?`<form class="nrf" id="rnf"><input id="rnn" maxlength="30" value="${esc((ROOMS[ROOM]||{}).name||'')}" placeholder="지금 방 이름" aria-label="지금 방 이름" autocomplete="off"><button class="btn">이름 저장</button></form>`:''}
   ${ROOM&&ROOMDOC&&!isHost()&&L.includes(ROOM)?`<p style="margin:10px 0 0"><button class="lnk" data-leave>${leaveArm?'정말 나갈까요? 한 번 더 누르면 나가요':'이 방 나가기'}</button></p>`:''}</section>`}
 function vTogether(){const head=ph('함께 보기','같은 방에 있는 친구들의 계획이 실시간으로 모여요. 친구 계획은 보기만 할 수 있어요.');
-  if(FB_ON&&shared&&(!ROOM||ROOMDOC===false))return head+roomsCard()+`<div class="note-box">${ROOM?'이 방을 찾을 수 없어요. 초대 링크를 다시 확인해 주세요.':'아직 들어간 방이 없어요. 새 방을 만들어 초대 링크를 보내거나, 친구에게 받은 초대 링크로 들어와 주세요.'}</div>`;
+  if(FB_ON&&shared&&(!ROOM||ROOMDOC===false))return head+roomsCard()+`<div class="note-box">${ROOM?'이 방을 찾을 수 없어요. 초대 링크를 다시 확인해 주세요.':((U.myRooms||[]).length?'위 목록에서 방을 골라 들어가면 친구들 계획을 볼 수 있어요.':'아직 들어간 방이 없어요. 새 방을 만들어 초대 링크를 보내거나, 친구에게 받은 초대 링크로 들어와 주세요.')}</div>`;
   if(!shared)return head+`<div class="note-box">지금은 이 기기에만 저장되고 있어요. ${FB_ON?'오른쪽 위 <b>로그인</b>을 눌러 Google 계정으로 로그인하고 아래 초대 링크를 친구에게 보내면':'claude.ai에 로그인한 상태로 열고 친구를 <b>편집자</b>로 초대하면'} 서로의 계획이 여기 나란히 보여요.</div>${invite()}`;
   const all={};for(const id of visible())if(boards[id].years[YEAR]&&!isEmpty(boards[id].years[YEAR]))all[id]=boards[id];all[me]=U;
   const ids=Object.keys(all).sort((a,b)=>stats(all[b].years[YEAR]).rate-stats(all[a].years[YEAR]).rate);
