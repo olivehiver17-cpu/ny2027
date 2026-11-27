@@ -848,13 +848,15 @@ function onRemote(list,fromCache){const nb={};list.forEach(([id,d])=>{nb[id]=nor
   else if(mine&&!saving&&!timer&&!editing()&&mine.updatedAt>U.updatedAt){U=mine;setYear(YEAR)}
   if(!saving&&!timer)setSync(shareLabel());if(Store.names)Store.names([...new Set([...Object.keys(nb),me])]);editing()?needRender=true:render()}
 let FB=null,unsub=null;
-async function doAuth(){if(!FB)return;const{Au,auth}=FB;if(me){await Au.signOut(auth);return}
+async function doAuth(){if(!FB)return;const{Au,auth}=FB;if(me){toast('로그아웃하는 중이에요');try{if(FB.F.waitForPendingWrites)await Promise.race([FB.F.waitForPendingWrites(FB.fs),new Promise(r=>setTimeout(r,3000))])}catch(e){}
+    await Au.signOut(auth);try{for(const k of Object.keys(localStorage))if(/^nyp(-|$)/.test(k)&&k!=='nyp-help'||k==='ny2027')localStorage.removeItem(k)}catch(e){}
+    location.replace(location.pathname);return}
   try{await Au.signInWithPopup(auth,new Au.GoogleAuthProvider())}catch(e){const c=e&&e.code||'';
     if(/popup-blocked|operation-not-supported|web-storage/.test(c))Au.signInWithRedirect(auth,new Au.GoogleAuthProvider());
     else if(!/popup-closed|cancelled-popup/.test(c))toast(c==='auth/unauthorized-domain'?'Firebase 승인된 도메인에 이 주소를 추가해 주세요':'로그인 실패: '+c)}}
 async function initFirebase(){try{const base='https://www.gstatic.com/firebasejs/10.12.2/';
     const[A,Au,F]=await Promise.all([import(base+'firebase-app.js'),import(base+'firebase-auth.js'),import(base+'firebase-firestore.js')]);
-    const app=A.initializeApp(CFG),auth=Au.getAuth(app),fs=F.getFirestore(app);FB={Au,auth};Au.getRedirectResult(auth).catch(()=>{});
+    const app=A.initializeApp(CFG),auth=Au.getAuth(app),fs=F.getFirestore(app);FB={Au,auth,F,fs};Au.getRedirectResult(auth).catch(()=>{});
     const ab=$('#auth');ab.hidden=false;let unsubs=[],lastMem=null;
     const rdoc=r=>F.doc(fs,'rooms',r),bdoc=(r,u)=>F.doc(fs,'rooms',r,'boards',u),mdoc=(r,u)=>F.doc(fs,'rooms',r,'members',u),vdoc=(r,u,y)=>F.doc(fs,'rooms',r,'vision',u,'years',String(y));
     const putMember=async()=>{if(!ROOM)return;const nm=(U.name||myWho||'').slice(0,40);if(nm===lastMem)return;lastMem=nm;try{await F.setDoc(mdoc(ROOM,me),{name:nm,who:(myWho||'').slice(0,40),at:Date.now()})}catch(e){lastMem=null}};
