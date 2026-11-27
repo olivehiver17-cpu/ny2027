@@ -309,7 +309,9 @@ tr.cur td{background:var(--panel)}
   table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1.5px dashed var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:6.5em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:6em;margin-inline-start:-6.5em;color:var(--mut);font-size:13px}.stack td:empty{display:none}
 }
 .bn{min-width:0}@media(max-width:520px){.exp{height:170px}.vdel{top:9px;right:9px;width:30px;height:30px}.vb{gap:8px}.vc{padding:6px;gap:4px}.vg{top:10px;left:10px;font-size:12px;padding:1px 7px}.vbar input{font-size:16px;padding:4px 6px}.vcore{padding:8px}.vcore b{font-size:14px}.vk{font-size:12px}.vadd span{display:none}.mgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:420px){.topbar:has(#auth:not([hidden])) .mini,.topbar:has(#auth:not([hidden])) .sync{display:none}#sun{display:none}#bname{max-width:4.2em}.hdr .topbar{gap:6px}.hdr .btn.sm{padding:3px 8px}}
+@media(max-width:375px){.topbar:has(#auth.out) .mini{display:none}}
+#auth svg{display:none;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:420px){#auth.out svg{display:block}#auth.out .lt{display:none}.hdr #auth.out{padding:3px 8px}.topbar:has(#auth.out) .sync{display:none}.topbar:has(#auth:not([hidden]):not(.out)) .mini,.topbar:has(#auth:not([hidden]):not(.out)) .sync{display:none}#sun{display:none}#bname{max-width:4.2em}.hdr .topbar{gap:6px}.hdr .btn.sm{padding:3px 8px}}
 @media(prefers-reduced-motion:reduce){#sunfill,.trk i,.toast{transition:none}}
 </style>
 </head>
@@ -884,8 +886,8 @@ async function initFirebase(){try{const base='https://www.gstatic.com/firebasejs
       else if(act==='deny')await F.updateDoc(rdoc(ROOM),{approved:F.arrayRemove(v),blocked:F.arrayUnion(v)});
       toast(act==='approve'?'승인했어요':act==='open'?(v?'이제 링크만 있으면 바로 참여해요':'이제 승인한 사람만 참여해요'):'처리했어요')}catch(e){toast('처리하지 못했어요. 다시 시도해 주세요')}};
     Au.onAuthStateChanged(auth,u=>{unsubs.forEach(f=>f());unsubs=[];boards={};members={};lastMem=null;ROOMDOC=null;gotRemote=false;
-      if(!u){me=null;shared=false;myWho='';ab.hidden=false;$('#acct').hidden=true;setSync(ROOM?'로그인하면 이 방에 참여해요':'로그인하면 친구와 공유돼요');editing()?needRender=true:render();return}
-      me=u.uid;myWho=u.displayName||'';shared=true;canWrite=true;ab.hidden=true;$('#acct').hidden=false;$('#acctName').textContent=(u.displayName||'')+(u.email?' · '+u.email:'');setSync('연결 중…');
+      if(!u){me=null;shared=false;myWho='';ab.hidden=false;ab.classList.remove('out');ab.textContent='로그인';ab.title='';ab.removeAttribute('aria-label');$('#acct').hidden=true;setSync(ROOM?'로그인하면 이 방에 참여해요':'로그인하면 친구와 공유돼요');editing()?needRender=true:render();return}
+      me=u.uid;myWho=u.displayName||'';shared=true;canWrite=true;ab.hidden=false;ab.classList.add('out');ab.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 16l-4-4 4-4M6 12h10"/></svg><span class="lt">로그아웃</span>';ab.title=(u.email||'')+' 로그아웃';ab.setAttribute('aria-label','로그아웃');$('#acct').hidden=false;$('#acctName').textContent=(u.displayName||'')+(u.email?' · '+u.email:'');setSync('연결 중…');
       const lt=setTimeout(()=>setSync('연결이 늦어지고 있어요'),10000);
       const joinRoom=()=>{if(ROOM&&ROOMDOC&&!U.myRooms.includes(ROOM)){U.myRooms.push(ROOM);if(!U.roomVis[ROOM])U.roomVis[ROOM]={vis:'all',viewers:[]};changed(false)}};
       // 내 계획(하나)
