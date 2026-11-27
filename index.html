@@ -838,7 +838,7 @@ addEventListener('resize',()=>{clearTimeout(window._rz);window._rz=setTimeout(fi
   tt.addEventListener('click',()=>{scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'})})}
 addEventListener('hashchange',()=>go(location.hash.slice(1)));
 go(location.hash.slice(1));
-if(!ls.get('nyp-help')&&uEmpty(U))setPanel('help');
+
 $('#helpShare').textContent=FB_ON?'초대 링크로 들어와 Google로 로그인한 친구끼리 계획이 실시간으로 공유돼요. 각자 자기 계획만 고칠 수 있어요.':'각자 자기 계획만 고칠 수 있고, 친구 계획은 \'함께 보기\'에서 볼 수 있어요.';
 
 /* ---------- 저장소: 공유 ---------- */
