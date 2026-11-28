@@ -198,7 +198,21 @@ h2{font-size:clamp(26px,3.2vw,32px)}h3{font-size:21px}
 .vbar{display:flex;align-items:center;gap:4px}.vbar input{flex:1;border:0;border-radius:var(--r1);background:transparent;padding:6px 8px;font-size:16px;min-height:40px;color:var(--text)}
 .vbar input:hover,.vbar input:focus{background:var(--panel);outline:none}.vbar .ia{min-width:40px;min-height:40px}
 .fvis{margin-top:18px}.fvg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}.fvg figure{margin:0}.fvg img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:var(--r1);display:block}.fvg figcaption{font-size:13px;color:var(--mut);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mon,.aw{margin-top:38px}
+.mon,.aw,.dly{margin-top:38px}
+.dly .q h4{font-size:15px;color:var(--ink);margin:18px 0 2px}.dly .q h4+p{margin-top:0}
+.dno{display:inline-block;width:fit-content;justify-self:start;font-size:12px;font-weight:700;color:var(--ink);background:var(--tint);border-radius:999px;padding:2px 10px;margin-bottom:6px}
+.din{width:100%;border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:8px 11px;font-size:16px;min-height:44px;color:var(--text);margin-top:8px}.din:focus{outline:none;border-color:var(--ink)}
+.dct{display:grid;gap:6px;margin-top:6px}.dct label{display:flex;align-items:center;gap:10px}.dct b{width:18px;color:var(--ink);font-size:15px;flex:none;text-align:center}.dct .din{margin-top:0}
+.dchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.dchip{border:1.5px solid var(--ink);background:var(--paper);border-radius:999px;padding:4px 12px;min-height:34px;font-size:14px;color:var(--ink)}.dchip::before{content:'+ '}.dchip.pick::before{content:'○ '}
+.dchip.on{background:var(--ink);color:var(--paper)}.dchip.on::before{content:'✓ '}.dchip.pick.on::before{content:'● '}
+.dempty{font-size:14px;color:var(--mut);border:1.5px dashed var(--line);border-radius:10px;padding:8px 12px;margin-top:8px}
+.dvs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.dvs span{display:block;font-size:13px;font-weight:700;color:var(--ink)}.dvs label:first-child .note{background:var(--tint)}
+.dfl{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:8px}
+.dflb{display:flex;flex-direction:column;align-items:center;border:2px solid transparent;background:var(--panel);border-radius:12px;padding:6px 2px 4px;font-size:13px;color:var(--text)}.dflb svg{width:40px;height:46px}.dflb.on{border-color:var(--ink);background:var(--tint);font-weight:700}
+.dbloom{display:flex;align-items:center;gap:12px;margin-top:10px;background:var(--panel);border-radius:12px;padding:10px 14px}.dbloom svg{width:54px;height:62px;flex:none}.dbloom span{display:block;font-size:12px;font-weight:700;color:var(--ink)}.dbloom b{font-size:18px;color:var(--text)}
+.dlove{display:block;margin-top:14px;background:var(--panel);border-radius:var(--r1);padding:14px 16px}.dlove span{font-size:15px;font-weight:700;color:var(--ink)}
+@media(max-width:520px){.dfl{grid-template-columns:repeat(3,minmax(0,1fr))}.dvs{grid-template-columns:minmax(0,1fr)}}
 .mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .mcell{display:grid;gap:4px;background:var(--panel);border-radius:var(--r1);padding:10px 12px}.mcell span{font-size:13px;font-weight:700;color:var(--ink)}
 .mcell.now{box-shadow:inset 0 0 0 2px var(--ink)}
@@ -387,6 +401,37 @@ const POS=[0,1,2,3,5,6,7,8];
 const KIND={want:'하고 싶은 것',should:'하면 좋은 것',bucket:'꼭 해볼 것'};
 const KDESC={want:'생각만 해도 설레는 것',should:'나를 위해 필요한 것',bucket:'올해 꼭 한 번은'};
 const STAGES=[{k:'plan',n:'새해 첫 마음',w:'1월 · 출발선 남기기',q:'올해 나는 어떤 사람이 되고 싶나요?'},{k:'mid',n:'여름 쉼표',w:'6~7월 · 잠깐 숨 고르기',q:'잘 되고 있는 것, 살짝 바꿔 볼 것은?'},{k:'final',n:'한 해 마무리',w:'12월 · 수고한 나에게',q:'한 해를 보낸 나에게 한마디'}];
+const FLW=[['camellia','동백',5,'#f6b8c4'],['daisy','데이지',12,'#fff6c9'],['tulip','튤립',0,'#ffc9b5'],['sunflower','해바라기',16,'#ffe08a'],['lavender','라벤더',-1,'#d9c8f2'],['dandelion','민들레',20,'#fff1a8']];
+const DQ={why:['그때의 내 상황과 닮아서','한 문장이 계속 맴돌아서','누군가와 함께 봐서','위로가 필요한 때라서'],habit:['아침 운동','매일 책 읽기','일기 쓰기','일찍 자기','외국어 공부','휴대폰 덜 보기'],ffm:['다시 피어나는 사람','천천히, 그러나 끝까지','곁을 지키는 사람','나답게 피는 꽃'],dwhy:['일이 크게 틀어져서','누군가와 크게 다퉈서','몸과 마음이 지쳐서','중요한 걸 놓쳐서']};
+function flowerSvg(id){const f=FLW.find(x=>x[0]===id);if(!f)return'';const [k,,n,c]=f,R=(m,g)=>Array.from({length:m},(_,i)=>g(i*360/m)).join('');let h='<path d="M32 40 Q33 56 31 70"/><path d="M32 60 Q22 58 18 50 Q28 50 32 60Z" fill="var(--tint)"/>';
+  if(k==='tulip')h+=`<path d="M20 12 Q18 34 32 38 Q46 34 44 12 L38 20 L32 9 L26 20Z" fill="${c}"/>`;
+  else if(k==='lavender')h='<path d="M32 8 Q31 40 32 70"/>'+[10,17,24,31].map(y=>`<ellipse cx="27" cy="${y}" rx="3.5" ry="5" fill="${c}" transform="rotate(-25 27 ${y})"/><ellipse cx="37" cy="${y+3}" rx="3.5" ry="5" fill="${c}" transform="rotate(25 37 ${y+3})"/>`).join('');
+  else if(k==='dandelion')h+=R(n,a=>`<path d="M32 24 L32 10" transform="rotate(${a} 32 24)" stroke-width="1.2"/>`)+`<circle cx="32" cy="24" r="4" fill="${c}"/>`;
+  else h+=R(n,a=>k==='camellia'?`<circle cx="32" cy="15" r="9" transform="rotate(${a} 32 25)" fill="${c}"/>`:k==='daisy'?`<ellipse cx="32" cy="14" rx="3.5" ry="9" transform="rotate(${a} 32 25)" fill="${c}"/>`:`<path d="M32 6 Q36 14 32 18 Q28 14 32 6Z" transform="rotate(${a} 32 25)" fill="${c}"/>`)+`<circle cx="32" cy="25" r="${k==='sunflower'?8:5}" fill="${k==='sunflower'?'#c98a3a':'#f2c14e'}"/>`;
+  return `<svg viewBox="0 0 64 72" aria-hidden="true"><g fill="none" stroke="var(--ink)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round">${h}</g></svg>`}
+const dDone=o=>[o.pick>=0&&!!o.ct[o.pick].trim()&&!!o.why.trim(),!!o.habit.trim()&&!!o.worst.trim()&&!!o.best.trim(),!!o.flower&&!!o.ffm.trim(),!!o.day&&!!o.dwhy.trim(),!!o.love.trim()];
+const dchips=(k,cur,set)=>`<div class="dchips">${DQ[k].map(t=>`<button class="dchip${(set?cur===t:cur.includes(t))?' on':''}" data-dadd="${k}" data-t="${esc(t)}"${set?' data-set="1"':''}>${esc(t)}</button>`).join('')}</div>`;
+function dPick(){const o=B.daily,ts=o.ct.map((t,i)=>[t.trim(),i]).filter(x=>x[0]);return ts.length?`<div class="dchips">${ts.map(([t,i])=>`<button class="dchip pick${o.pick===i?' on':''}" data-dpick="${i}">${esc(t)}</button>`).join('')}</div>`:'<p class="dempty">위에 적으면 여기에 떠요.</p>'}
+function dailyS(){const o=B.daily,dn=dDone(o),mx=(+YEAR===NOW.getFullYear()?NOW.toISOString().slice(0,10):YEAR+'-12-31'),fl=FLW.find(f=>f[0]===o.flower);
+  return `<section class="dly"><div class="ph" style="margin-bottom:12px"><div><h3>일상의 나</h3><p>네 가지 질문으로 올해의 나를 꺼내 봐요. 하나만 답해도 괜찮아요.</p></div><span class="tag">${dn.filter(Boolean).length}/5</span></div>
+  <div class="qs">
+  <section class="q"><span class="dno">01 · 콘텐츠</span><h3><span>올해 만난 콘텐츠 중 기억에 남는 것 3가지</span></h3><p>책, 음악, 영화, 영상 뭐든 좋아요. 하나만 적어도 괜찮아요.</p>
+    <div class="dct">${o.ct.map((t,i)=>`<label><b>${i+1}</b><input class="din" data-dct="${i}" maxlength="60" value="${esc(t)}" aria-label="콘텐츠 ${i+1}" autocomplete="off"></label>`).join('')}</div>
+    <h4>그중 가장 오래 남은 하나는?</h4><div id="dpick">${dPick()}</div>
+    <h4>왜 기억에 남았나요?</h4><p>그걸 만났을 때의 내 상황이나 기분을 떠올려 보세요.</p><textarea class="note" data-dk="why" rows="2" placeholder="예) 이직을 고민하던 때라 주인공의 선택이 남 일 같지 않았다">${esc(o.why)}</textarea>${dchips('why',o.why)}</section>
+  <section class="q"><span class="dno">02 · 습관</span><h3><span>몇 년째 계획만 하고 자리 잡지 못한 습관이 있나요?</span></h3>
+    <input class="din" data-dk="habit" maxlength="40" value="${esc(o.habit)}" placeholder="예) 아침 운동" autocomplete="off">${dchips('habit',o.habit,1)}
+    <h4>그 습관, 끝내 못 지키면 vs 지키면?</h4><p>양 끝을 나란히 놓으면 이 습관으로 진짜 얻고 싶은 게 보여요.</p>
+    <div class="dvs"><label><span>못 지키면, 최악은</span><textarea class="note" data-dk="worst" rows="3" placeholder="예) 체력이 떨어져 주말엔 누워만 있다">${esc(o.worst)}</textarea></label><label><span>지키면, 최선은</span><textarea class="note" data-dk="best" rows="3" placeholder="예) 아침 한 시간이 온전히 내 시간이 된다">${esc(o.best)}</textarea></label></div></section>
+  <section class="q"><span class="dno">03 · 꽃말</span><h3><span>내가 꽃이라면, 나의 꽃말은?</span></h3><p>먼저 올해의 나를 닮은 꽃을 골라 보세요.</p>
+    <div class="dfl">${FLW.map(f=>`<button class="dflb${o.flower===f[0]?' on':''}" data-dfl="${f[0]}" aria-pressed="${o.flower===f[0]}">${flowerSvg(f[0])}<span>${f[1]}</span></button>`).join('')}</div>
+    ${fl?`<div class="dbloom">${flowerSvg(fl[0])}<div><span>나의 꽃말 · ${fl[1]}</span><b id="dffm">${o.ffm.trim()?esc(o.ffm):'아래에 적으면 여기에 피어나요'}</b></div></div>`:''}
+    <input class="din" data-dk="ffm" maxlength="40" value="${esc(o.ffm)}" placeholder="예) 천천히, 그러나 끝까지" autocomplete="off">${dchips('ffm',o.ffm,1)}</section>
+  <section class="q"><span class="dno">04 · 그날</span><h3><span>${YEAR}년 중 다시는 돌아가고 싶지 않은 날은?</span></h3><p>정확하지 않아도 괜찮아요. 그쯤이었던 날을 골라 주세요.</p>
+    <input class="din" type="date" data-dk="day" min="${YEAR}-01-01" max="${mx}" value="${esc(o.day)}" aria-label="돌아가고 싶지 않은 날">
+    <h4>왜 그날인가요?</h4><textarea class="note" data-dk="dwhy" rows="2" placeholder="예) 준비 없이 큰 발표를 맡았다가 무너졌던 날이라서">${esc(o.dwhy)}</textarea>${dchips('dwhy',o.dwhy)}</section>
+  </div>
+  <label class="dlove"><span>${+YEAR+1}년, 나를 더 아끼기 위해 할 일</span><input class="din" data-dk="love" maxlength="80" value="${esc(o.love)}" placeholder="예) 일주일에 한 번, 약속 없는 저녁 비워 두기" autocomplete="off"></label></section>`}
 const AW=['올해 가장 많이 들은 노래','올해의 책','올해의 영화·드라마','올해의 장소','올해 최고의 소비','올해의 음식','올해의 사람','올해의 사진 한 장','올해 새로 시작한 것','올해의 작은 루틴','올해의 실패, 그리고 배운 점','가장 기억에 남는 사소한 호의'];
 const SL=['시작 전','진행 중','완료'];
 const QS=[['나는 어떤 일로 돈을 벌고 싶은가','좋아하는 일, 잘하는 일, 세상이 돈을 내는 일이 겹치는 곳을 떠올려 보세요.'],
@@ -407,7 +452,8 @@ const NOW=new Date(),PLAN=String(NOW.getMonth()>=9?NOW.getFullYear()+1:NOW.getFu
 const okYear=y=>/^\d{4}$/.test(y)&&+y>=2000&&+y<=2100;
 
 /* ---------- 데이터 ---------- */
-const blankBoard=()=>({keyword:'',motto:'',qa:['','','',''],center:'',goals:Array(8).fill(''),acts:Array.from({length:8},()=>Array.from({length:8},()=>({t:'',s:0}))),items:[],stages:{plan:{},mid:{},final:{}},months:Array(12).fill(''),awards:Array(12).fill(''),vcap:Array(8).fill('')});
+const blankDaily=()=>({ct:['','',''],pick:-1,why:'',habit:'',worst:'',best:'',flower:'',ffm:'',day:'',dwhy:'',love:''});
+const blankBoard=()=>({keyword:'',motto:'',qa:['','','',''],center:'',goals:Array(8).fill(''),acts:Array.from({length:8},()=>Array.from({length:8},()=>({t:'',s:0}))),items:[],stages:{plan:{},mid:{},final:{}},months:Array(12).fill(''),awards:Array(12).fill(''),vcap:Array(8).fill(''),daily:blankDaily()});
 function normBoard(d){const b=blankBoard();if(!d||typeof d!=='object')return b;
   b.keyword=String(d.keyword||'').slice(0,40);b.motto=String(d.motto||'').slice(0,40);
   if(Array.isArray(d.qa))for(let i=0;i<4;i++)b.qa[i]=String(d.qa[i]||'').slice(0,2000);
@@ -417,6 +463,9 @@ function normBoard(d){const b=blankBoard();if(!d||typeof d!=='object')return b;
   if(Array.isArray(d.items))b.items=d.items.filter(x=>x&&typeof x==='object').slice(0,300).map(x=>({id:String(x.id||uid()).slice(0,40),t:String(x.t||'').slice(0,80),k:KIND[x.k]?x.k:'want',g:Number.isInteger(x.g)&&x.g>=0&&x.g<8?x.g:-1,m:Number.isInteger(x.m)&&x.m>=1&&x.m<=12?x.m:0,done:!!x.done,at:String(x.at||'').slice(0,20)}));
   if(d.stages&&typeof d.stages==='object')for(const k of ['plan','mid','final']){const s=d.stages[k];if(s&&typeof s==='object')b.stages[k]={at:String(s.at||'').slice(0,30),rate:+s.rate||0,mr:+s.mr||0,lr:+s.lr||0,note:String(s.note||'').slice(0,1000)}}
   for(const[k,n,m]of[['months',12,60],['awards',12,80],['vcap',8,40]])if(Array.isArray(d[k]))for(let i=0;i<n;i++)b[k][i]=String(d[k][i]||'').slice(0,m);
+  const dd=d.daily;if(dd&&typeof dd==='object'){const o=b.daily;if(Array.isArray(dd.ct))for(let i=0;i<3;i++)o.ct[i]=String(dd.ct[i]||'').slice(0,60);o.pick=Number.isInteger(dd.pick)&&dd.pick>=0&&dd.pick<3?dd.pick:-1;
+    for(const[k,m]of[['why',300],['habit',40],['worst',200],['best',200],['ffm',40],['dwhy',300],['love',80]])o[k]=String(dd[k]||'').slice(0,m);
+    o.flower=FLW.some(f=>f[0]===dd.flower)?dd.flower:'';o.day=/^\d{4}-\d{2}-\d{2}$/.test(dd.day||'')?dd.day:''}
   return b}
 const blankUser=()=>({myRooms:[],roomVis:{},vis:'all',viewers:[],name:'',theme:'연두',font:'pretendard',fsz:'m',years:{},updatedAt:0});
 function normUser(d){const u=blankUser();if(!d||typeof d!=='object')return u;
@@ -434,7 +483,7 @@ function stats(b){let fa=0,va=0,full=0;const li=Array.from({length:8},()=>[0,0])
   const it=b.items.filter(x=>x.t.trim()),dn=it.filter(x=>x.done).length,tot=fa+it.length;
   return{goals,mr:fa?va/fa:0,lr:it.length?dn/it.length:0,rate:tot?(va+dn)/tot:0,fa,full,items:it.length,done:dn}}
 const mEmpty=b=>!b.center.trim()&&b.goals.every(g=>!g.trim())&&b.acts.every(r=>r.every(x=>!x.t.trim()));
-const isEmpty=b=>!b||(mEmpty(b)&&b.qa.every(q=>!q.trim())&&b.items.length===0&&!b.keyword.trim()&&!b.motto.trim()&&(b.months||[]).every(m=>!m.trim())&&(b.awards||[]).every(a=>!a.trim())&&!Object.values(b.stages||{}).some(x=>x&&(x.at||(x.note||'').trim())));
+const isEmpty=b=>!b||(mEmpty(b)&&b.qa.every(q=>!q.trim())&&b.items.length===0&&!b.keyword.trim()&&!b.motto.trim()&&(b.months||[]).every(m=>!m.trim())&&(b.awards||[]).every(a=>!a.trim())&&!Object.values(b.stages||{}).some(x=>x&&(x.at||(x.note||'').trim()))&&!(b.daily&&(b.daily.ct.some(x=>x.trim())||['why','habit','worst','best','flower','ffm','day','dwhy','love'].some(k=>String(b.daily[k]||'').trim()))));
 const uEmpty=u=>Object.values(u.years).every(isEmpty)&&!u.name;
 const ser=(u,who)=>{const o=JSON.parse(JSON.stringify(u));for(const y in o.years)o.years[y].acts=u.years[y].acts.flat();if(who)o.who=who;delete o.vis;delete o.viewers;return o};
 const pubCopy=(data,room)=>{const v=(data.roomVis&&data.roomVis[room])||{vis:'all',viewers:[]};return{name:data.name||'',who:data.who||'',theme:data.theme,font:data.font,fsz:data.fsz,years:data.years,updatedAt:data.updatedAt||0,vis:v.vis,viewers:v.vis==='some'?(v.viewers||[]):[]}};
@@ -467,6 +516,7 @@ function shareLabel(){if(!canWrite)return '이 기기에만 저장';if(FB_ON&&!R
   const nm=FB_ON&&ROOMS[ROOM]&&ROOMS[ROOM].name?ROOMS[ROOM].name+' · ':'';if(FB_ON&&ROOMDOC&&!joined())return nm+'방장 승인 대기 중';const v=rv();
   return nm+(v.vis==='none'?'나만 보기 · 저장됨':v.vis==='some'?(v.viewers.length?`친구 ${v.viewers.length}명에게 공유 중`:'아직 아무에게도 공개 안 함'):'친구 모두에게 공유 중')}
 function toast(t){const e=$('#toast');e.textContent=t;e.style.pointerEvents='none';e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2400)}
+function dTag(){const g=document.querySelector('.dly .tag');if(g)g.textContent=dDone(B.daily).filter(Boolean).length+'/5'}
 function changed(full){U.updatedAt=Date.now();ls.set(LK,JSON.stringify(U));clearTimeout(timer);timer=setTimeout(()=>{timer=null;flush()},700);refresh();if(full)render()}
 async function flush(){if(!Store.save||!me||!canWrite)return;if(saving){pending=true;return}saving=true;setSync('저장 중…');
   try{await Store.save(ser(U,myWho));setSync(shareLabel())}
@@ -585,8 +635,8 @@ function vCheck(){const s=stats(B);
   <div class="agrid">${AW.map((q,i)=>`<label class="acell"><span>${q}</span><input data-aw="${i}" maxlength="80" value="${esc(B.awards[i])}" autocomplete="off"></label>`).join('')}</div></section>
 `,arcS=`  <section style="margin-top:38px"><div class="ph" style="margin-bottom:0"><div><h3>해마다 쌓이는 기록</h3><p>한 해가 끝나면 새 해를 시작해도 지난 기록은 그대로 남아요.</p></div>${canNew()?'<button class="btn" data-go="newyear">새 해 시작하기</button>':''}</div>
   ${arch?`<table class="stack"><thead><tr><th>연도</th><th>핵심 목표</th><th>키워드</th><th style="text-align:right">달성률</th><th></th></tr></thead><tbody>${arch}</tbody></table>`:'<p class="tip">아직 쌓인 기록이 없어요.</p>'}</section>`;
-  if(retroOnly())return ph(YEAR+' 돌아보기',YEAR+'년은 계획 없이 회고만 남겨도 돼요. 달마다 떠오르는 단어와 올해의 ○○부터 채워 보세요.')+`<div class="note-box" style="margin:0 0 8px">이 해에 만다라트나 버킷리스트를 쓰면 달성률 기록 칸도 함께 나타나요.</div>`+monS+awS+arcS;
-  return top+monS+awS+arcS}
+  if(retroOnly())return ph(YEAR+' 돌아보기',YEAR+'년은 계획 없이 회고만 남겨도 돼요. 달마다 떠오르는 단어, 올해의 ○○, 일상의 나 중 마음 가는 것부터 채워 보세요.')+`<div class="note-box" style="margin:0 0 8px">이 해에 만다라트나 버킷리스트를 쓰면 달성률 기록 칸도 함께 나타나요.</div>`+monS+awS+dailyS()+arcS;
+  return top+monS+awS+dailyS()+arcS}
 
 function vNewYear(){const ys=Object.keys(U.years).map(Number),nx=String(Math.max(+PLAN-1,...ys)+1),src=U.years[YEAR];
   return ph('새 해 시작하기',`지금 보고 있는 ${YEAR}년 기록은 그대로 두고 새 연도 노트를 만들어요. 이어 갈 것만 골라 주세요.`)+`<form class="nyf" id="nyf">
@@ -785,6 +835,9 @@ document.addEventListener('click',e=>{if(e.target.id==='exm'){closeEx();return}
   if(d.sample!=null){if(!mEmpty(B))return;B.center=SAMPLE.center;B.goals=[...SAMPLE.goals];B.acts=SAMPLE.acts.map(r=>r.map(t=>({t,s:0})));changed(true);toast('예시를 채웠어요. 내 목표로 고쳐 써 보세요');return}
   if(d.clearm!=null){if(mEmpty(B))return;const bd=B,snap=JSON.parse(JSON.stringify({c:B.center,g:B.goals,a:B.acts}));const e=blankBoard();B.center='';B.goals=e.goals;B.acts=e.acts;focus=4;changed(true);showUndo('만다라트를 비웠어요',()=>{bd.center=snap.c;bd.goals=snap.g;bd.acts=snap.a});return}
   if(d.chip){filt=d.chip;render();return}
+  if(d.dadd&&canWrite){const o=B.daily,k=d.dadd,v=d.t;if(d.set)o[k]=v;else if(!o[k].includes(v))o[k]=o[k].trim()?o[k].replace(/\s*$/,'')+', '+v:v;changed(true);return}
+  if(d.dpick!=null&&canWrite){B.daily.pick=+d.dpick;$('#dpick').innerHTML=dPick();dTag();changed(false);return}
+  if(d.dfl&&canWrite){B.daily.flower=B.daily.flower===d.dfl?'':d.dfl;changed(true);return}
   if(d.tog){const x=B.items.find(i=>i.id===d.tog);if(x){x.done=!x.done;x.at=x.done?new Date().toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}):'';changed(true);if(x.done)toast('이뤘어요!')}return}
   if(d.ed){editId=d.ed;render();const i=document.querySelector('.edit');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}return}
   if(d.save){const i=document.querySelector('.edit');saveEdit(d.save,i&&i.value);return}
@@ -806,6 +859,8 @@ document.addEventListener('click',e=>{if(e.target.id==='exm'){closeEx();return}
 document.addEventListener('input',e=>{const t=e.target,d=t.dataset;
   if(d.mon!=null){B.months[+d.mon]=t.value.slice(0,60);changed(false);return}
   if(d.aw!=null){B.awards[+d.aw]=t.value.slice(0,80);changed(false);return}
+  if(d.dct!=null){const o=B.daily;o.ct[+d.dct]=t.value.slice(0,60);if(o.pick>=0&&!o.ct[o.pick].trim())o.pick=-1;const ts=o.ct.map((x,i)=>x.trim()?i:-1).filter(i=>i>=0);if(o.pick<0&&ts.length===1)o.pick=ts[0];$('#dpick').innerHTML=dPick();dTag();changed(false);return}
+  if(d.dk){const o=B.daily,k=d.dk;o[k]=t.value.slice(0,+t.maxLength>0?+t.maxLength:300);if(k==='ffm'&&$('#dffm'))$('#dffm').textContent=o.ffm.trim()||'아래에 적으면 여기에 피어나요';dTag();changed(false);return}
   if(d.vcap!=null){B.vcap[+d.vcap]=t.value.slice(0,40);changed(false);return}
   if(t.id==='nm'){U.name=t.value.slice(0,20);$('#bname').textContent=bname();document.title=`${bname()}의 ${YEAR} 해돋이`;changed(false);return}
   if(t.id==='kw'){B.keyword=t.value.slice(0,40);changed(false);return}
